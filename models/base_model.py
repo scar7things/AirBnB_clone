@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """Defines the BaseModel class."""
-from datetime import datetime
+import models
 from uuid import uuid4
+from datetime import datetime
 
 
 class BaseModel:
@@ -18,16 +19,19 @@ class BaseModel:
         self.id = str(uuid4())
         self.created_at = datetime.today()
         self.updated_at = datetime.today()
-        if kwargs:
+        if len(kwargs) != 0:
             for k, v in kwargs.items():
                 if k == "created_at" or k == "updated_at":
-                    setattr(self, k, datetime.strptime(v, tform))
-                elif k != "__class__":
-                    setattr(self, k, v)
+                    self.__dict__[k] = datetime.strptime(v, tform)
+                else:
+                    self.__dict__[k] = v
+        else:
+            models.storage.new(self)
 
     def save(self):
         """Update updated_at with the current datetime."""
         self.updated_at = datetime.today()
+        models.storage.save()
 
     def to_dict(self):
         """Return the dictionary of the BaseModel instance.
